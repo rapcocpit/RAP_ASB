@@ -1,0 +1,76 @@
+@Metadata.layer: #PARTNER
+@UI.headerInfo:{ 
+    typeName: 'Booking',
+    typeNamePlural: 'Booking Request',
+    title:{ value: 'BookingId' },
+    description: { value: 'CarrierId' }
+}
+
+annotate entity Zust_Asb_booking_projection
+    with 
+{
+    @UI.facet: [{ 
+            purpose: #STANDARD,
+            type: #COLLECTION,
+            label: 'More information',
+            id: 'bookcoll',
+            position: 10
+     },
+     {
+            purpose: #STANDARD,
+            type: #IDENTIFICATION_REFERENCE,
+            label: 'Header info',
+            parentId: 'bookcoll',
+            position: 10
+     },
+     {
+            purpose: #STANDARD,
+            type: #FIELDGROUP_REFERENCE,
+            label: 'Flight price',
+            parentId: 'bookcoll',
+            position: 20,
+            targetQualifier: 'price'
+     },
+     {
+            purpose: #STANDARD,
+            type: #LINEITEM_REFERENCE,
+            label: 'Booking Supplements',
+            position: 20,
+            targetElement: '_BookingSupplement' 
+     }]
+//    TravelId;
+    @UI.lineItem: [{ position: 10 }]
+    @UI.identification: [{ position: 10 }]
+    BookingId;
+    @UI.lineItem: [{ position: 20 }]
+    @UI.identification: [{ position: 20 }]
+    BookingDate;
+    @UI.lineItem: [{ position: 30 }]
+    @UI.identification: [{ position: 30 }]
+    CustomerId;
+    @UI.lineItem: [{ position: 40 }]
+    @UI.identification: [{ position: 40 }]
+    CarrierId;
+    @UI.lineItem: [{ position: 50 }]
+    @UI.identification: [{ position: 50 }]
+    ConnectionId;
+    @UI.lineItem: [{ position: 60 }]
+    @UI.fieldGroup: [{ qualifier: 'price', position: 30 }]
+    FlightDate;
+    @UI.lineItem: [{ position: 70 }]
+    @UI.fieldGroup: [{ qualifier: 'price', position: 10 }]
+    FlightPrice;
+    @UI.lineItem: [{ position: 80 }]
+    @UI.fieldGroup: [{ qualifier: 'price', position: 20 }]
+    CurrencyCode;
+//    BookingStatus;
+//    LastChangedAt;
+    /* Associations */
+//    _BookingStatus;
+//    _BookingSupplement;
+//    _Carrier;
+//    _Connection;
+//    _Customer;
+//    _Travel;
+    
+}

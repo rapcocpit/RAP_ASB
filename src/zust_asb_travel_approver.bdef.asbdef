@@ -1,0 +1,37 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZUST_ASB_TRAVEL_Approver alias travel
+{
+
+  use update;
+
+  field ( readonly ) TravelId,AgencyId,CustomerId,BeginDate,EndDate,TotalPrice,
+                     Description;
+  use action acceptTravel;
+  use action rejectTravel;
+  use action Prepare;
+  use action Edit;
+  use action Resume;
+  use action Activate;
+  use action Discard;
+
+  use association _Booking { with draft; }
+}
+
+define behavior for ZUST_ASB_BOOKING_APPROVER alias Booking
+{
+
+  use association _Travel { with draft; }
+  use association _BookingSupplement ;
+}
+
+define behavior for ZUST_ASB_BSUPPL_approver alias BookSuppl
+{
+  use update;
+  use delete;
+
+  use association _Travel;
+  use association _Booking ;
+}

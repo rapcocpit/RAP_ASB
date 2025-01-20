@@ -1,0 +1,53 @@
+projection;
+strict ( 2 );
+use draft;
+define behavior for Zust_Asb_travel_projection alias TRavel
+implementation in class ZCL_ust_ASB_projection unique
+{
+  use create(augment , precheck);
+  use update(precheck);
+//  use create;
+//  use update;
+  use delete;
+  use action Activate;
+  use action Prepare;
+  use action edit;
+  use action Discard;
+  use action Resume;
+
+  use action copyTravel;
+//  use association _Booking { create; }
+  use association _Booking { create; with draft;}
+  use association _attachment { create; with draft;}
+
+}
+
+define behavior for Zust_Asb_booking_projection //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _Travel {with draft;}
+  use association _BookingSupplement { create;  with draft; }
+//  use association _Travel ;
+//  use association _BookingSupplement ;
+}
+
+define behavior for Zust_Asb_bsuppl_projection //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _Travel {with draft;}
+  use association _Booking {with draft;}
+//  use association _Travel;
+//  use association _Booking ;
+
+}
+define behavior for ZUST_ASVB_Travel_Attach_PRO alias attachments
+{
+  use update;
+  use delete;
+
+  use association _Travel {with draft;}
+}

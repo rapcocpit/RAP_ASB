@@ -1,0 +1,183 @@
+managed implementation in class ZCL_ASB_BD_TRavel unique;
+//We are not implmenting single class zbp_i_ust_asb_travel12 instad of this
+//we will create class accoring to below entities, So that multiple users can do
+//changes at a time in BO.
+//managed;
+strict ( 2 );
+with draft;
+define behavior for Zi_ust_asb_travel alias Travel
+implementation in class ZCL_ASB_BD_TRavel unique
+persistent table /dmo/travel_m
+
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+draft table zust_asb_travel
+etag master LastChangedAt
+early numbering
+with additional save
+{
+  create ( precheck );
+  update ( precheck );
+  //   create;//
+  //  update;
+  delete;
+  //Static control
+  field ( readonly ) TravelId, CreatedBy, CreatedAt, LastChangedBy, LastChangedAt;
+  field ( mandatory ) AgencyId, CustomerId, BeginDate, EndDate, OverallStatus, BookingFee, CurrencyCode;
+  association _Booking { create ( features : instance ); with draft; }
+  association _attachment { create ( features : instance ); with draft; }
+
+  factory action copyTravel [1];
+
+  action (features : instance) acceptTravel result[1] $self;
+  action (features : instance)  rejectTravel result[1] $self;
+
+  //its a piece of code which is intented to be only
+  //consumed within our RAP BO
+  internal action reCalcTotalPrice;
+  //Define determination to execute the code when
+  //booking fee or curr code changes so we calc total price
+  determination calculateTotalPrice on modify
+  { create; field BookingFee, CurrencyCode; }
+  //Checking custom business object rules
+  validation validateHeaderData on save { create; field CustomerId, BeginDate, EndDate; }
+
+  //Adding side-effect which inform RAP to reaload the total price if the booking
+  //fee has been changed on the Frontend
+  //applicable only for ODataV4 UI binding
+  side effects
+  {
+    field BookingFee affects field TotalPrice;
+        field OverallStatus affects entity _Booking ;
+//        action acceptTravel affects field OverallStatus;
+//        action rejectTravel affects field OverallStatus;
+    //determine action validationCustomer executed on field CustomerId affects messages;
+  }
+
+  //adding the draft actions
+  draft determine action Prepare;
+  draft action Edit;
+  draft action Resume;
+  draft action Activate;
+  draft action Discard;
+
+  //  association _Booking { create; }
+  mapping for /dmo/travel_m
+    {
+      TravelId      = travel_id;
+      AgencyId      = agency_id;
+      CustomerId    = customer_id;
+      BeginDate     = begin_date;
+      EndDate       = end_date;
+      TotalPrice    = total_price;
+      BookingFee    = booking_fee;
+      CurrencyCode  = currency_code;
+      Description   = description;
+      OverallStatus = overall_status;
+      CreatedBy     = created_by;
+      LastChangedBy = last_changed_by;
+      CreatedAt     = created_at;
+      LastChangedAt = last_changed_at;
+    }
+}
+
+define behavior for Zi_ust_asb_booking alias booking
+implementation in class ZCL_ASB_BD_booking unique
+persistent table /dmo/booking_m
+draft table zust_asb_book
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LastChangedAt
+//etag master <field_name>
+early numbering
+{
+  update;
+  delete;
+  field ( readonly ) TravelId, BookingId;
+  field ( mandatory ) CarrierId, ConnectionId, FlightDate, BookingStatus;
+  //  association _Travel;
+  //  association _BookingSupplement { create; }
+
+
+  association _Travel { with draft; }
+  association _BookingSupplement { create; with draft; }
+
+  mapping for /dmo/booking_m
+    {
+      TravelId      = travel_id;
+      BookingId     = booking_id;
+      BookingDate   = booking_date;
+      CustomerId    = customer_id;
+      CarrierId     = carrier_id;
+      ConnectionId  = connection_id;
+      FlightDate    = flight_date;
+      FlightPrice   = flight_price;
+      CurrencyCode  = currency_code;
+      BookingStatus = booking_status;
+      LastChangedAt = last_changed_at;
+    }
+}
+
+define behavior for Zi_ust_asb_bSuppl alias BookSuppl
+implementation in class ZCL_ASB_BD_BookSuppl unique
+persistent table /dmo/booksuppl_m
+draft table zust_asb_bsuppl
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LastChangedAt
+early numbering
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) BookingId, TravelId, BookingSupplementId;
+  field ( mandatory ) Price, SupplementId;
+
+  //  association _Travel ;
+  //  association _Booking ;
+  association _Travel { with draft; }
+  association _Booking { with draft; }
+  mapping for /dmo/booksuppl_m
+    {
+      TravelId            = travel_id;
+      BookingId           = booking_id;
+      BookingSupplementId = booking_supplement_id;
+      SupplementId        = supplement_id;
+      Price               = price;
+      CurrencyCode        = currency_code;
+      LastChangedAt       = last_changed_at;
+    }
+}
+
+define behavior for ZUST_ASB_U_Attachment alias attachment
+implementation in class ZCL_ASB_Att unique
+persistent table ZUST_ASB__ATTACH
+draft table ZUST_D_ATT
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LastChangedAt
+{
+  update;
+  delete;
+//  field ( Numbering : managed, readonly : update ) id;
+  field ( numbering : managed, readonly : update )id;
+  field ( readonly ) TravelId;
+
+  association _Travel { with draft; }
+
+    mapping for zust_Asb__attach
+    {
+      TravelId      = travel_id;
+      Id     = id;
+      Memo   = memo;
+      Attachment    = attachment;
+      Filename     = filename;
+      Filetype  = filetype;
+      LocalCreatedBy    = local_created_by;
+      LocalCreatedAT   = local_created_at;
+      LocalLastChangedBy  = local_last_changed_by;
+      LocalLastChangedAT = local_last_changed_At;
+      LastChangedAt = last_changed_at;
+    }
+}

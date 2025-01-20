@@ -1,0 +1,4 @@
+@EndUserText.label: 'Service defincation for Sales app'
+define service ZSD_UST_ASB_sales {
+  expose ZC_ust_ASB_sales_ana;
+}

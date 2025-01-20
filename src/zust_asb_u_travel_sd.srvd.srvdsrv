@@ -1,0 +1,9 @@
+@EndUserText.label: 'Unmanged - Service def for travel'
+define service ZUST_ASB_U_TRavel_SD {
+  expose ZUST_ASB_U_TRAVEL       as travel;
+  expose ZUST_ASB_U_Customer     as customer;
+  expose ZUST_ASB_U_AGENCY       as agency;
+  expose I_Currency              as currency;
+  expose I_Country               as Country;
+  expose /DMO/I_Travel_Status_VH as status;
+}
